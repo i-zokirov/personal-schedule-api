@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm'
@@ -13,16 +14,17 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string
 
-  @Column({ type: String })
+  @Column({ type: 'varchar' })
   firstName: string
 
-  @Column({ type: String })
+  @Column({ type: 'varchar' })
   lastName: string
 
-  @Column({ unique: true })
+  @Column({ unique: true, type: 'varchar' })
+  @Index()
   email: string
 
-  @Column({ type: String })
+  @Column({ type: 'varchar' })
   password: string
 
   @UpdateDateColumn()
