@@ -1,11 +1,12 @@
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { GraphQLModule } from '@nestjs/graphql'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
+import { AuthModule } from './auth/auth.module'
 import { TypeOrmConfigService } from './config/typeorm.config'
+import { LocationsModule } from './locations/locations.module'
 import { UsersModule } from './users/users.module'
-import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,10 +17,16 @@ import { AuthModule } from './auth/auth.module';
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfigService
     }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      playground: true,
+      autoSchemaFile: 'src/graphql/schema.gql'
+    }),
     UsersModule,
-    AuthModule
+    AuthModule,
+    LocationsModule
   ],
-  controllers: [AppController],
-  providers: [AppService]
+  controllers: [],
+  providers: []
 })
 export class AppModule {}

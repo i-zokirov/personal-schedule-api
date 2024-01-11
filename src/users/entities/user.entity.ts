@@ -1,5 +1,12 @@
 import * as bcrypt from 'bcryptjs'
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  BeforeInsert,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn
+} from 'typeorm'
 
 @Entity()
 export class User {
@@ -17,6 +24,12 @@ export class User {
 
   @Column({ type: String })
   password: string
+
+  @UpdateDateColumn()
+  updatedAt: string
+
+  @CreateDateColumn()
+  createdAt: string
 
   @BeforeInsert()
   emailToLowerCase() {
