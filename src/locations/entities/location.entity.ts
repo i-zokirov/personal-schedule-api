@@ -9,7 +9,7 @@ import {
 } from 'typeorm'
 
 @ObjectType()
-@Entity()
+@Entity({ name: 'locations' })
 export class Location {
   @PrimaryGeneratedColumn('uuid')
   @Field((type) => String, { description: 'Primary generated column ID' })

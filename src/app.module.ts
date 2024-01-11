@@ -5,6 +5,7 @@ import { GraphQLModule } from '@nestjs/graphql'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from './auth/auth.module'
 import { TypeOrmConfigService } from './config/typeorm.config'
+import { EventsModule } from './events/events.module'
 import { LocationsModule } from './locations/locations.module'
 import { UsersModule } from './users/users.module'
 
@@ -24,7 +25,8 @@ import { UsersModule } from './users/users.module'
     }),
     UsersModule,
     AuthModule,
-    LocationsModule
+    LocationsModule,
+    EventsModule
   ],
   controllers: [],
   providers: []

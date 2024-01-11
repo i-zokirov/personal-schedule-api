@@ -1,3 +1,4 @@
+import { Field, ObjectType } from '@nestjs/graphql'
 import * as bcrypt from 'bcryptjs'
 import {
   BeforeInsert,
@@ -9,28 +10,36 @@ import {
   UpdateDateColumn
 } from 'typeorm'
 
-@Entity()
+@Entity({ name: 'users' })
+@ObjectType()
 export class User {
   @PrimaryGeneratedColumn('uuid')
+  @Field(() => String)
   id: string
 
   @Column({ type: 'varchar' })
+  @Field(() => String)
   firstName: string
 
   @Column({ type: 'varchar' })
+  @Field(() => String)
   lastName: string
 
   @Column({ unique: true, type: 'varchar' })
   @Index()
+  @Field(() => String)
   email: string
 
   @Column({ type: 'varchar' })
+  @Field(() => String)
   password: string
 
   @UpdateDateColumn()
+  @Field(() => String)
   updatedAt: string
 
   @CreateDateColumn()
+  @Field(() => String)
   createdAt: string
 
   @BeforeInsert()
