@@ -2,16 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type User {
-  id: String!
-  firstName: String!
-  lastName: String!
-  email: String!
-  password: String!
-  updatedAt: String!
-  createdAt: String!
-}
-
 type Location {
   """Primary generated column ID"""
   id: String!
@@ -40,7 +30,8 @@ type Event {
   description: String
   startDate: String!
   endDate: String!
-  createdBy: User!
+  createdBy: User
+  participants: [User!]
   location: Location
 
   """Location updated at"""
@@ -50,20 +41,49 @@ type Event {
   createdAt: DateTime!
 }
 
+type User {
+  id: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  password: String!
+  updatedAt: String!
+  createdAt: String!
+  events: [Event!]
+}
+
+type EventsMeta {
+  page: Float!
+  limit: Float!
+  total: Float!
+}
+
+type FindManyEventsResponse {
+  data: [Event!]!
+  meta: EventsMeta!
+}
+
 type Query {
   locations: [Location!]!
-  location(id: String!): Location!
-  events: [Event!]!
-  event(id: Int!): Event!
+  location(id: String!): Location
+  events(findManyArgsInput: FindManyArgsInput): FindManyEventsResponse!
+  event(id: String!): Event
+}
+
+input FindManyArgsInput {
+  page: Int
+  limit: Int
+  from: String
+  to: String
 }
 
 type Mutation {
   createLocation(createLocationInput: CreateLocationInput!): Location!
-  updateLocation(updateLocationInput: UpdateLocationInput!): Location!
-  removeLocation(id: String!): Location!
+  updateLocation(updateLocationInput: UpdateLocationInput!): Location
+  removeLocation(id: String!): Location
   createEvent(createEventInput: CreateEventInput!): Event!
-  updateEvent(updateEventInput: UpdateEventInput!): Event!
-  removeEvent(id: Int!): Event!
+  updateEvent(updateEventInput: UpdateEventInput!): Event
+  removeEvent(id: String!): Event
 }
 
 input CreateLocationInput {
@@ -94,7 +114,6 @@ input CreateEventInput {
 }
 
 input UpdateEventInput {
-  """Event title"""
   title: String
 
   """Event description"""
@@ -108,5 +127,5 @@ input UpdateEventInput {
 
   """Event location ID"""
   locationId: String
-  id: Int!
+  id: String!
 }

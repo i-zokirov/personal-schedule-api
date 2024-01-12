@@ -1,10 +1,13 @@
+import { UseGuards } from '@nestjs/common'
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { GqlAuthGuard } from 'src/guards/gql-auth.guard'
 import { CreateLocationInput } from './dto/create-location.input'
 import { UpdateLocationInput } from './dto/update-location.input'
 import { Location } from './entities/location.entity'
 import { LocationsService } from './locations.service'
 
 @Resolver(() => Location)
+@UseGuards(GqlAuthGuard)
 export class LocationsResolver {
   constructor(private readonly locationsService: LocationsService) {}
 
@@ -20,12 +23,12 @@ export class LocationsResolver {
     return this.locationsService.find()
   }
 
-  @Query(() => Location, { name: 'location' })
+  @Query(() => Location, { name: 'location', nullable: true })
   findOne(@Args('id', { type: () => String }) id: string) {
     return this.locationsService.findOne({ where: { id } })
   }
 
-  @Mutation(() => Location)
+  @Mutation(() => Location, { nullable: true })
   updateLocation(
     @Args('updateLocationInput') updateLocationInput: UpdateLocationInput
   ) {
@@ -33,7 +36,7 @@ export class LocationsResolver {
     return this.locationsService.updateOneById(id, rest)
   }
 
-  @Mutation(() => Location)
+  @Mutation(() => Location, { nullable: true })
   removeLocation(@Args('id', { type: () => String }) id: string) {
     return this.locationsService.remove(id)
   }

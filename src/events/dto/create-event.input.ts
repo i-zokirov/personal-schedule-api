@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql'
-import { ApiProperty } from '@nestjs/swagger'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { IsNotEmpty, IsOptional, IsString, Length } from 'class-validator'
 
 @InputType()
@@ -15,7 +15,7 @@ export class CreateEventInput {
   @IsOptional()
   @IsString()
   @Length(1, 500)
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Event description',
     minLength: 1,
     maxLength: 500,
@@ -27,13 +27,13 @@ export class CreateEventInput {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ description: 'Event start date' })
-  startDate: string
+  startDate: Date
 
   @Field(() => String, { description: 'Event end date' })
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ description: 'Event end date' })
-  endDate: string
+  endDate: Date
 
   @Field(() => String, { description: 'Event location ID', nullable: true })
   @IsOptional()

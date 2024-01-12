@@ -1,11 +1,13 @@
 import { Field, ObjectType } from '@nestjs/graphql'
 import * as bcrypt from 'bcryptjs'
+import { Event } from 'src/events/entities/event.entity'
 import {
   BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   Index,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm'
@@ -41,6 +43,13 @@ export class User {
   @CreateDateColumn()
   @Field(() => String)
   createdAt: string
+
+  @ManyToMany(() => Event, (event) => event.participants, {
+    onDelete: 'SET NULL',
+    nullable: true
+  })
+  @Field(() => [Event], { nullable: true })
+  events: Event[]
 
   @BeforeInsert()
   emailToLowerCase() {

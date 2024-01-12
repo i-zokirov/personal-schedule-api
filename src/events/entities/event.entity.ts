@@ -5,6 +5,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
@@ -27,15 +29,23 @@ export class Event {
 
   @Column({ type: 'date' })
   @Field(() => String)
-  startDate: string
+  startDate: Date
 
   @Column({ type: 'date' })
   @Field(() => String)
-  endDate: string
+  endDate: Date
 
-  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: false })
-  @Field(() => User)
+  @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })
+  @Field(() => User, { nullable: true })
   createdBy: User
+
+  @ManyToMany(() => User, (user) => user.events, {
+    onDelete: 'SET NULL',
+    nullable: true
+  })
+  @JoinTable()
+  @Field(() => [User], { nullable: true })
+  participants: User[]
 
   @ManyToOne(() => Location, { onDelete: 'SET NULL', nullable: true })
   @Field(() => Location, { nullable: true })

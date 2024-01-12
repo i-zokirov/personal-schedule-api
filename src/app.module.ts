@@ -1,6 +1,7 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
-import { Module } from '@nestjs/common'
+import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { APP_PIPE } from '@nestjs/core'
 import { GraphQLModule } from '@nestjs/graphql'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from './auth/auth.module'
@@ -21,7 +22,8 @@ import { UsersModule } from './users/users.module'
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       playground: true,
-      autoSchemaFile: 'src/graphql/schema.gql'
+      autoSchemaFile: 'src/graphql/schema.gql',
+      context: ({ req }) => ({ req })
     }),
     UsersModule,
     AuthModule,
@@ -29,6 +31,11 @@ import { UsersModule } from './users/users.module'
     EventsModule
   ],
   controllers: [],
-  providers: []
+  providers: [
+    {
+      provide: APP_PIPE,
+      useValue: new ValidationPipe({ whitelist: true })
+    }
+  ]
 })
 export class AppModule {}
