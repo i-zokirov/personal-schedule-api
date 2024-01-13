@@ -28,8 +28,8 @@ type Event {
   id: String!
   title: String!
   description: String
-  startDate: String!
-  endDate: String!
+  startDate: Float!
+  endDate: Float!
   createdBy: User
   participants: [User!]
   location: Location

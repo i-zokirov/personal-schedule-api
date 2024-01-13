@@ -27,12 +27,12 @@ export class Event {
   @Field(() => String, { nullable: true })
   description: string | null
 
-  @Column({ type: 'date' })
-  @Field(() => String)
+  @Column({ type: 'timestamp' })
+  @Field(() => Number || String)
   startDate: Date
 
-  @Column({ type: 'date' })
-  @Field(() => String)
+  @Column({ type: 'timestamp' })
+  @Field(() => Number || String)
   endDate: Date
 
   @ManyToOne(() => User, { onDelete: 'SET NULL', nullable: true })

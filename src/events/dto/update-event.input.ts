@@ -1,6 +1,6 @@
 import { Field, InputType, PartialType } from '@nestjs/graphql'
 import { ApiPropertyOptional } from '@nestjs/swagger'
-import { IsOptional, IsString, Length } from 'class-validator'
+import { IsOptional, IsString } from 'class-validator'
 import { CreateEventInput } from './create-event.input'
 
 @InputType()
@@ -20,7 +20,6 @@ export class UpdateEventInput extends PartialType(CreateEventInput) {
   @Field(() => String, { description: 'Event description', nullable: true })
   @IsOptional()
   @IsString()
-  @Length(1, 500)
   @ApiPropertyOptional({
     description: 'Event description',
     minLength: 1,

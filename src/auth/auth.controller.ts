@@ -1,7 +1,16 @@
-import { BadRequestException, Body, Controller, Post } from '@nestjs/common'
-import { ApiBody, ApiOperation } from '@nestjs/swagger'
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Post,
+  UseGuards
+} from '@nestjs/common'
+import { ApiBearerAuth, ApiBody, ApiOperation } from '@nestjs/swagger'
+import { AuthUser } from 'src/decorators/auth-user.decorator'
 import Serialize from 'src/decorators/serialize.decorator'
+import { AuthenticationGuard } from 'src/guards/auth.guard'
 import { CreateUserDto } from 'src/users/dto/create-user.dto'
+import { UserDto } from 'src/users/dto/user.dto'
 import { User } from 'src/users/entities/user.entity'
 import { AuthService } from './auth.service'
 import { AuthSuccessDto } from './dto/auth-success.dto'
@@ -29,6 +38,15 @@ export class AuthController {
       }
       throw new BadRequestException(error.message)
     }
+  }
+
+  @Post('me')
+  @ApiBearerAuth('jwt')
+  @ApiOperation({ summary: 'Get user data' })
+  @UseGuards(AuthenticationGuard)
+  @Serialize(UserDto)
+  async me(@AuthUser() user: User) {
+    return user
   }
 
   @Post('login')

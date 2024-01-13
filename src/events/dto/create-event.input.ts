@@ -14,11 +14,8 @@ export class CreateEventInput {
   @Field(() => String, { description: 'Event description', nullable: true })
   @IsOptional()
   @IsString()
-  @Length(1, 500)
   @ApiPropertyOptional({
     description: 'Event description',
-    minLength: 1,
-    maxLength: 500,
     required: false
   })
   description?: string

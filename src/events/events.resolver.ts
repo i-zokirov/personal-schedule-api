@@ -40,7 +40,14 @@ export class EventsResolver {
       }
       eventDto.location = location
     }
-    return this.eventsService.create(eventDto)
+    const created = await this.eventsService.create(eventDto)
+
+    return this.eventsService.findOne({
+      where: {
+        id: created.id
+      },
+      relations: ['participants', 'location', 'createdBy']
+    })
   }
 
   @Query(() => FindManyEventsResponse, { name: 'events' })
@@ -143,7 +150,12 @@ export class EventsResolver {
     }
 
     const updated = await this.eventsService.updateEvent(event, updateInput)
-    return updated
+    return this.eventsService.findOne({
+      where: {
+        id: updated.id
+      },
+      relations: ['participants', 'location', 'createdBy']
+    })
   }
 
   @Mutation(() => Event, { nullable: true })
@@ -163,12 +175,16 @@ export class EventsResolver {
       return null
     }
 
-    if (event.createdBy.id !== user.id) {
+    if (event.createdBy && event.createdBy.id !== user.id) {
       throw new UnauthorizedException(
         'You are not allowed to update this event'
       )
     }
 
-    return this.eventsService.removeEvent(event)
+    const deleted = await this.eventsService.removeEvent(event)
+    return {
+      ...deleted,
+      id
+    }
   }
 }
