@@ -1,6 +1,7 @@
-import { UseGuards } from '@nestjs/common'
+import { UseGuards, UseInterceptors } from '@nestjs/common'
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard'
+import { GqlCacheInterceptor } from 'src/interceptors/gql-cache-interceptor'
 import { CreateLocationInput } from './dto/create-location.input'
 import { UpdateLocationInput } from './dto/update-location.input'
 import { Location } from './entities/location.entity'
@@ -8,6 +9,7 @@ import { LocationsService } from './locations.service'
 
 @Resolver(() => Location)
 @UseGuards(GqlAuthGuard)
+@UseInterceptors(GqlCacheInterceptor)
 export class LocationsResolver {
   constructor(private readonly locationsService: LocationsService) {}
 
