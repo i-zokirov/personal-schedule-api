@@ -9,6 +9,7 @@ import { TypeOrmConfigService } from './config/typeorm.config'
 import { EventsModule } from './events/events.module'
 import { LocationsModule } from './locations/locations.module'
 import { UsersModule } from './users/users.module'
+import { ConnectionsModule } from './connections/connections.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { UsersModule } from './users/users.module'
     UsersModule,
     AuthModule,
     LocationsModule,
-    EventsModule
+    EventsModule,
+    ConnectionsModule
   ],
   controllers: [],
   providers: [
