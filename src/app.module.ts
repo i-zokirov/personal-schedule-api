@@ -10,6 +10,7 @@ import { EventsModule } from './events/events.module'
 import { LocationsModule } from './locations/locations.module'
 import { UsersModule } from './users/users.module'
 import { ConnectionsModule } from './connections/connections.module';
+import { SocketstateModule } from './socketstate/socketstate.module';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { ConnectionsModule } from './connections/connections.module';
     AuthModule,
     LocationsModule,
     EventsModule,
-    ConnectionsModule
+    ConnectionsModule,
+    SocketstateModule
   ],
   controllers: [],
   providers: [

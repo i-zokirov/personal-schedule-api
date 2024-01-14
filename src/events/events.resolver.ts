@@ -1,8 +1,11 @@
 import { UnauthorizedException, UseGuards } from '@nestjs/common'
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { isEmail } from 'class-validator'
+import { ConnectionsService } from 'src/connections/connections.service'
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard'
 import { LocationsService } from 'src/locations/locations.service'
+import { SocketstateService } from 'src/socketstate/socketstate.service'
+import { EventEmitTypes } from 'src/types/enums'
 import { UsersService } from 'src/users/users.service'
 import { Between, In } from 'typeorm'
 import { CreateEventInput } from './dto/create-event.input'
@@ -18,7 +21,9 @@ export class EventsResolver {
   constructor(
     private readonly eventsService: EventsService,
     private readonly locationsService: LocationsService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly socketstateService: SocketstateService,
+    private readonly connectionsService: ConnectionsService
   ) {}
 
   @Mutation(() => Event)
@@ -60,12 +65,42 @@ export class EventsResolver {
     }
     const created = await this.eventsService.create(eventDto)
 
-    return this.eventsService.findOne({
+    const fetched = await this.eventsService.findOne({
       where: {
         id: created.id
       },
       relations: ['participants', 'location', 'createdBy']
     })
+
+    const ids = fetched.participants.map((p) => p.id)
+
+    this.sendEventToParticipants(EventEmitTypes.CREATED, fetched, ids)
+
+    return fetched
+  }
+
+  async sendEventToParticipants(
+    eventType: EventEmitTypes,
+    event: Event,
+    participants: string[]
+  ) {
+    const server = this.socketstateService.getServer()
+    if (server) {
+      const connections = await this.connectionsService.findAll({
+        where: {
+          user: {
+            id: In(participants)
+          }
+        },
+        relations: ['user']
+      })
+
+      if (connections && connections.length) {
+        connections.forEach((connection) => {
+          server.to(connection.client_id).emit(eventType, event)
+        })
+      }
+    }
   }
 
   @Query(() => FindManyEventsResponse, { name: 'events' })
@@ -206,12 +241,18 @@ export class EventsResolver {
     }
 
     const updated = await this.eventsService.updateEvent(event, updateInput)
-    return this.eventsService.findOne({
+    const fetched = await this.eventsService.findOne({
       where: {
         id: updated.id
       },
       relations: ['participants', 'location', 'createdBy']
     })
+
+    const ids = fetched.participants.map((p) => p.id)
+
+    this.sendEventToParticipants(EventEmitTypes.UPDATED, fetched, ids)
+
+    return fetched
   }
 
   @Mutation(() => Event, { nullable: true })
@@ -238,6 +279,17 @@ export class EventsResolver {
     }
 
     const deleted = await this.eventsService.removeEvent(event)
+    const ids = event.participants.map((p) => p.id)
+
+    this.sendEventToParticipants(
+      EventEmitTypes.DELETED,
+      {
+        ...deleted,
+        id
+      },
+      ids
+    )
+
     return {
       ...deleted,
       id

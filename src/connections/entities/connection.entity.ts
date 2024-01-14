@@ -17,7 +17,7 @@ export class Connection {
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   user: User
 
-  @Column()
+  @Column({ unique: true, nullable: false })
   @Index()
   client_id: string
 

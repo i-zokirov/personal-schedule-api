@@ -32,7 +32,11 @@ export class ConnectionsService {
     return this.repository.save(connection)
   }
 
-  removeOneByClientId(id: string) {
-    return this.repository.delete({ client_id: id })
+  async removeOneByClientId(id: string) {
+    const connection = await this.repository.findOne({
+      where: { client_id: id }
+    })
+    if (!connection) return null
+    return this.repository.remove(connection)
   }
 }

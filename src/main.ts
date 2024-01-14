@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core'
+import { IoAdapter } from '@nestjs/platform-socket.io'
 import {
   DocumentBuilder,
   SwaggerCustomOptions,
@@ -39,7 +40,7 @@ async function bootstrap() {
   SwaggerModule.setup('/api', app, document, customOptions)
 
   app.enableCors({ origin: '*', credentials: true })
-
+  app.useWebSocketAdapter(new IoAdapter(app))
   await app.listen(PORT)
 }
 bootstrap()

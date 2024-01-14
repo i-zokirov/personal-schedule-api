@@ -1,11 +1,6 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException
-} from '@nestjs/common'
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { Socket } from 'src/types/socket'
+import { WsException } from '@nestjs/websockets'
 import { UsersService } from 'src/users/users.service'
 
 @Injectable()
@@ -15,23 +10,27 @@ export class WsJwtGuard implements CanActivate {
     private readonly jwtService: JwtService
   ) {}
 
-  async canActivate(context: ExecutionContext) {
-    const client = context.switchToWs().getClient<Socket>()
-    const token = client.handshake.headers.authorization?.split(' ')[1]
+  async canActivate(context: ExecutionContext): Promise<any> {
+    const client = context.switchToWs().getClient()
+    const authToken = client.handshake.headers.authorization
 
-    if (!token) {
+    if (!authToken || !authToken.startsWith('Bearer ')) {
       return false
     }
 
+    const token = authToken.split(' ')[1]
+
+    if (!token) return false
+
     try {
       const { sub } = this.jwtService.verify(token)
-      if (!sub) throw new UnauthorizedException('Invalid token')
+      if (!sub) throw new WsException('Invalid token')
       const user = await this.usersService.findOne({
         where: {
           id: sub
         }
       })
-      if (!user) throw new UnauthorizedException('Invalid token')
+      if (!user) throw new WsException('Invalid token')
       client.user = user
 
       return true
