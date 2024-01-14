@@ -12,10 +12,11 @@ export class LocationsResolver {
   constructor(private readonly locationsService: LocationsService) {}
 
   @Mutation(() => Location)
-  createLocation(
+  async createLocation(
     @Args('createLocationInput') createLocationInput: CreateLocationInput
   ) {
-    return this.locationsService.create(createLocationInput)
+    const created = await this.locationsService.create(createLocationInput)
+    return created
   }
 
   @Query(() => [Location], { name: 'locations' })
@@ -37,7 +38,16 @@ export class LocationsResolver {
   }
 
   @Mutation(() => Location, { nullable: true })
-  removeLocation(@Args('id', { type: () => String }) id: string) {
-    return this.locationsService.remove(id)
+  async removeLocation(@Args('id', { type: () => String }) id: string) {
+    const removed = await this.locationsService.remove(id)
+
+    if (removed) {
+      return {
+        id,
+        ...removed
+      }
+    } else {
+      return null
+    }
   }
 }

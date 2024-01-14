@@ -39,6 +39,8 @@ export class LocationsService {
   }
 
   async remove(id: string) {
-    return this.repository.delete({ id })
+    const location = await this.repository.findOne({ where: { id } })
+    if (!location) return null
+    return this.repository.remove(location)
   }
 }

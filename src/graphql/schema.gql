@@ -64,6 +64,7 @@ type FindManyEventsResponse {
 }
 
 type Query {
+  users: [User!]!
   locations: [Location!]!
   location(id: String!): Location
   events(findManyArgsInput: FindManyArgsInput): FindManyEventsResponse!
@@ -73,6 +74,7 @@ type Query {
 input FindManyArgsInput {
   page: Int
   limit: Int
+  locationId: String
   from: String
   to: String
 }
@@ -111,6 +113,9 @@ input CreateEventInput {
 
   """Event location ID"""
   locationId: String
+
+  """User emails"""
+  participants: [String!]
 }
 
 input UpdateEventInput {
@@ -127,5 +132,8 @@ input UpdateEventInput {
 
   """Event location ID"""
   locationId: String
+
+  """User emails"""
+  participants: [String!]
   id: String!
 }

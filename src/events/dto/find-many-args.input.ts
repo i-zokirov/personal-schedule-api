@@ -1,6 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql'
 import { ApiPropertyOptional } from '@nestjs/swagger'
-import { IsDateString, IsInt, IsOptional } from 'class-validator'
+import { IsDateString, IsInt, IsOptional, IsUUID } from 'class-validator'
 
 @InputType()
 export class FindManyArgsInput {
@@ -15,6 +15,12 @@ export class FindManyArgsInput {
   @IsOptional()
   @IsInt()
   limit: number
+
+  @Field(() => String, { nullable: true })
+  @ApiPropertyOptional({ description: 'Location ID' })
+  @IsOptional()
+  @IsUUID()
+  locationId?: string
 
   @Field(() => String, { nullable: true })
   @ApiPropertyOptional({ description: 'Start date' })

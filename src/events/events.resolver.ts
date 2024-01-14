@@ -1,8 +1,10 @@
 import { UnauthorizedException, UseGuards } from '@nestjs/common'
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { isEmail } from 'class-validator'
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard'
 import { LocationsService } from 'src/locations/locations.service'
-import { Between, FindManyOptions } from 'typeorm'
+import { UsersService } from 'src/users/users.service'
+import { Between, In } from 'typeorm'
 import { CreateEventInput } from './dto/create-event.input'
 import { FindManyArgsInput } from './dto/find-many-args.input'
 import { FindManyEventsResponse } from './dto/find-many-response.input'
@@ -15,7 +17,8 @@ import { EventsService } from './events.service'
 export class EventsResolver {
   constructor(
     private readonly eventsService: EventsService,
-    private readonly locationsService: LocationsService
+    private readonly locationsService: LocationsService,
+    private readonly usersService: UsersService
   ) {}
 
   @Mutation(() => Event)
@@ -23,12 +26,27 @@ export class EventsResolver {
     @Args('createEventInput') createEventInput: CreateEventInput,
     @Context() context
   ) {
-    const { locationId, ...rest } = createEventInput
+    const { locationId, participants, ...rest } = createEventInput
     const user = context.req.user
     const eventDto: Partial<Event> = {
       ...rest,
       createdBy: user,
       participants: [user]
+    }
+
+    if (participants && participants.length) {
+      const participantEmails = participants.filter((p) => isEmail(p))
+
+      if (participantEmails.length) {
+        const users = await this.usersService.findAll({
+          where: {
+            email: In(participantEmails)
+          }
+        })
+        if (users && users.length) {
+          eventDto.participants = [...eventDto.participants, ...users]
+        }
+      }
     }
 
     if (locationId) {
@@ -52,13 +70,27 @@ export class EventsResolver {
 
   @Query(() => FindManyEventsResponse, { name: 'events' })
   async findManyEvents(
+    @Context() context,
     @Args('findManyArgsInput', {
       nullable: true,
       type: () => FindManyArgsInput
     })
     findManyArgsInput?: FindManyArgsInput
   ) {
-    const options: FindManyOptions<Event> = {
+    const user = context.req.user
+    const options: any = {
+      where: [
+        {
+          createdBy: {
+            id: user.id
+          }
+        },
+        {
+          participants: {
+            id: user.id
+          }
+        }
+      ],
       relations: ['participants', 'location', 'createdBy']
     }
 
@@ -70,12 +102,21 @@ export class EventsResolver {
       findManyArgsInput && findManyArgsInput.page ? findManyArgsInput.page : 1
 
     if (findManyArgsInput) {
-      const { from, to } = findManyArgsInput
+      const { from, to, locationId } = findManyArgsInput
       if (from && to) {
-        options.where = {
-          ...options.where,
+        options.where = options.where.map((query) => ({
+          ...query,
           startDate: Between(new Date(from), new Date(to))
-        }
+        }))
+      }
+
+      if (locationId) {
+        options.where = options.where.map((query) => ({
+          ...query,
+          location: {
+            id: locationId
+          }
+        }))
       }
     }
 
@@ -133,10 +174,25 @@ export class EventsResolver {
       )
     }
 
-    const { locationId, id, ...rest } = updateEventInput
+    const { locationId, id, participants, ...rest } = updateEventInput
 
     const updateInput: Partial<Event> = {
       ...rest
+    }
+
+    if (participants && participants.length) {
+      const participantEmails = participants.filter((p) => isEmail(p))
+
+      if (participantEmails.length) {
+        const users = await this.usersService.findAll({
+          where: {
+            email: In(participantEmails)
+          }
+        })
+        if (users && users.length) {
+          updateInput.participants = users
+        }
+      }
     }
 
     if (locationId) {

@@ -1,11 +1,14 @@
 import { Field, InputType, PartialType } from '@nestjs/graphql'
-import { ApiPropertyOptional } from '@nestjs/swagger'
-import { IsOptional, IsString } from 'class-validator'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 import { CreateEventInput } from './create-event.input'
 
 @InputType()
 export class UpdateEventInput extends PartialType(CreateEventInput) {
   @Field(() => String)
+  @ApiProperty({ description: 'Event ID', example: '1' })
+  @IsNotEmpty()
+  @IsString()
   id: string
 
   @Field(() => String, { nullable: true })
@@ -45,4 +48,11 @@ export class UpdateEventInput extends PartialType(CreateEventInput) {
   @IsString()
   @ApiPropertyOptional({ description: 'Event location ID', required: false })
   locationId?: string
+
+  @Field(() => [String], { description: 'User emails', nullable: true })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  @ApiPropertyOptional({ description: 'User Emails', required: false })
+  participants?: string[]
 }
